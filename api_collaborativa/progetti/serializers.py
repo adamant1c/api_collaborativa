@@ -1,4 +1,3 @@
-# projects/serializers.py
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Progetto, Task
@@ -85,7 +84,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     # Statistiche
     percentuale_completamento = serializers.FloatField(read_only=True)
     task_totali = serializers.IntegerField(read_only=True)
-    done_task = serializers.IntegerField(read_only=True)
+    done_tasks = serializers.IntegerField(read_only=True)
 
 
     class Meta:
@@ -93,7 +92,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'nome', 'descrizione', 'proprietario', 'collaboratori',
             'id_collaboratori', 'percentuale_completamento', 'task_totali',
-            'done_task', 'data_creazione', 'data_aggiornamento'
+            'done_tasks', 'data_creazione', 'data_aggiornamento'
         ]
         read_only_fields = ['id', 'proprietario', 'data_creazione', 'data_aggiornamento']
 
@@ -143,7 +142,7 @@ class ProjectStatsSerializer(serializers.ModelSerializer):
 
     percentuale_completamento = serializers.FloatField(read_only=True)
     task_totali = serializers.IntegerField(read_only=True)
-    done_task = serializers.IntegerField(read_only=True)
+    done_tasks = serializers.IntegerField(read_only=True)
     in_progress_tasks = serializers.IntegerField(read_only=True)
     todo_tasks = serializers.IntegerField(read_only=True)
 
@@ -151,5 +150,5 @@ class ProjectStatsSerializer(serializers.ModelSerializer):
         model = Progetto
         fields = [
             'id', 'nome', 'percentuale_completamento', 'task_totali',
-            'done_task', 'in_progress_tasks', 'todo_tasks'
+            'done_tasks', 'in_progress_tasks', 'todo_tasks'
         ]

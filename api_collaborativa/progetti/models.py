@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator, MaxValueValidator
+import logging
+from django.utils import timezone
+from django.db.models import CharField
 
 
 class Progetto(models.Model):
@@ -30,20 +32,30 @@ class Progetto(models.Model):
         verbose_name = "Progetto"
         verbose_name_plural = "Progetti"
 
-    def __str__(self):
+    def __str__(self) -> CharField:
         return self.nome
 
     def statistiche(self):
         """Calcola la percentuale di task completati"""
         task_totali = self.tasks.count()
         if task_totali == 0:
+            logging.warning("Non ci sono ancora tasks nel progetto!")
             return 0
-        done_task = self.tasks.filter(status='DONE').count()
-        return round((done_task / task_totali) * 100, 1)
+        done_tasks = self.tasks.filter(stato='DONE').count()
+        return round((done_tasks / task_totali) * 100, 1)
 
-    def is_member(self, user):
-        """Verifica se un utente è proprietario oppure è contenuto nella lista collaboratore"""
-        return user == self.proprietario or user in self.collaboratori.all()
+    def is_member(self, user) -> bool:
+        """Verifica se un utente è proprietario oppure è contenuto nella lista collaboratori
+        :param: istanza dell'utente che fa la request
+        :return: True se l'utente è proprietario o è nella lista collaboratori, False in caso contrario
+        """
+
+        if user == self.proprietario or user in self.collaboratori.all():
+            logging.debug("Utente è proprietario oppure è contenuto nella lista collaboratori")
+            return True
+        else:
+            logging.warning("Utente non autorizzato")
+            return False
 
 
 class Task(models.Model):
@@ -97,12 +109,12 @@ class Task(models.Model):
         verbose_name = "Task"
         verbose_name_plural = "Tasks"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.titolo} - {self.progetto.nome}"
 
     def check_ritardo(self):
         """Verifica se il task è in ritardo"""
-        from django.utils import timezone
+
         if self.scadenza and self.stato != 'DONE':
             return timezone.now() > self.scadenza
         return False
