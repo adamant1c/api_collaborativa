@@ -38,8 +38,8 @@ class Progetto(models.Model):
         task_totali = self.tasks.count()
         if task_totali == 0:
             return 0
-        task_completati = self.tasks.filter(status='DONE').count()
-        return round((task_completati / task_totali) * 100, 1)
+        done_task = self.tasks.filter(status='DONE').count()
+        return round((done_task / task_totali) * 100, 1)
 
     def is_member(self, user):
         """Verifica se un utente è proprietario oppure è contenuto nella lista collaboratore"""
@@ -67,7 +67,7 @@ class Task(models.Model):
         related_name='tasks',
         verbose_name="Progetto"
     )
-    assegnato = models.ForeignKey(
+    assegnatario = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
         null=True,
@@ -75,7 +75,7 @@ class Task(models.Model):
         related_name='tasks_assegnati',
         verbose_name="Assegnato a"
     )
-    creato_da = models.ForeignKey(
+    autore = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='tasks_creati',
