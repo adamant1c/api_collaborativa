@@ -2,7 +2,6 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q, Count, Case, When, IntegerField
-from django.utils import timezone
 from django.contrib.auth.models import User
 import logging
 
@@ -28,6 +27,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
         Restituisce solo i progetti dove l'utente è owner o collaboratore.
         Aggiunge anche le statistiche.
         """
+        if getattr(self, 'swagger_fake_view', False):
+            return Progetto.objects.none()
+
+
         user = self.request.user
         return Progetto.objects.filter(
             Q(proprietario=user) | Q(collaboratori=user)
@@ -188,6 +191,9 @@ class TaskViewSet(viewsets.ModelViewSet):
         """
         Restituisce solo i task dei progetti dove l'utente è membro.
         """
+        if getattr(self, 'swagger_fake_view', False):
+            return Task.objects.none()
+
         user = self.request.user
         return Task.objects.filter(
             Q(progetto__proprietario=user) | Q(progetto__collaboratori=user)
