@@ -4,14 +4,12 @@ from . import views
 
 # Router per ViewSets
 router = DefaultRouter()
-router.register(r'projects', views.ProjectViewSet, basename='project')
-router.register(r'tasks', views.TaskViewSet, basename='task')
+router.register(r'projects', views.ProjectViewSet, basename='projects')
+router.register(r'tasks', views.TaskViewSet, basename='tasks')
+
 
 
 urlpatterns = [
     # Include router URLs
     path('', include(router.urls)),
-
-    # Dashboard
-    path('statistiche/', views.StatsView.as_view(), name='dashboard'),
 ]

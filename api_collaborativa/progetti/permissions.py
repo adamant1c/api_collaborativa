@@ -59,20 +59,20 @@ class CanModifyTask(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # Lettura: tutti i membri del progetto
         if request.method in permissions.SAFE_METHODS:
-            return obj.project.is_member(request.user)
+            return obj.progetto.is_member(request.user)
 
         # Modifica/Eliminazione:
         # 1. Proprietario del progetto
         # 2. Creatore del task
         # 3. Collaboratori possono modificare (ma non eliminare)
         if request.method == 'DELETE':
-            return (obj.project.proprietario == request.user or
+            return (obj.progetto.proprietario == request.user or
                     obj.autore == request.user)
 
         # Per PUT/PATCH
-        return (obj.project.proprietario == request.user or
+        return (obj.progetto.proprietario == request.user or
                 obj.autore == request.user or
-                request.user in obj.project.collaborators.all())
+                request.user in obj.progetto.collaboratori.all())
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):

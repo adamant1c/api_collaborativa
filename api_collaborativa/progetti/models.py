@@ -35,7 +35,7 @@ class Progetto(models.Model):
     def __str__(self) -> CharField:
         return self.nome
 
-    def statistiche(self):
+    def percentuale_completamento(self):
         """Calcola la percentuale di task completati"""
         task_totali = self.tasks.count()
         if task_totali == 0:

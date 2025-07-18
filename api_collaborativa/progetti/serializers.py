@@ -17,19 +17,19 @@ class TaskSerializer(serializers.ModelSerializer):
 
     autore = UserSerializer(read_only=True)
     assegnatario = UserSerializer(read_only=True)
-    id_assegnatario = serializers.IntegerField(write_only=True, required=False, allow_null=True)
+    assigned_to_id  = serializers.IntegerField(write_only=True, required=False, allow_null=True)
     check_ritardo = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Task
         fields = [
             'id', 'titolo', 'descrizione', 'progetto', 'stato',
-            'scadenza', 'autore', 'assegnatario', 'id_assegnatario',
+            'scadenza', 'autore', 'assegnatario', 'assigned_to_id',
             'check_ritardo', 'data_creazione', 'data_aggiornamento'
         ]
         read_only_fields = ['id', 'autore', 'data_creazione', 'data_aggiornamento']
 
-    def verifica_id_assegnatario(self, value):
+    def validate_assigned_to_id(self, value):
         """Verifica che l'utente assegnato sia membro del progetto"""
         if value is not None:
             progetto = self.context.get('progetto')
@@ -46,24 +46,24 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Crea un task assegnando automaticamente il autore"""
-        assigned_to_id = validated_data.pop('id_assegnatario', None)
+        assigned_to_id = validated_data.pop('assigned_to_id', None)
 
         # Assegna automaticamente l'utente che crea il task
         validated_data['autore'] = self.context['request'].user
 
         # Gestisce l'assegnazione
         if assigned_to_id:
-            validated_data['id_assegnatario'] = assigned_to_id
+            validated_data['assigned_to_id'] = assigned_to_id
 
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
         """Aggiorna un task gestendo l'assegnazione"""
-        id_assegnatario = validated_data.pop('id_assegnatario', None)
+        assigned_to_id = validated_data.pop('assigned_to_id', None)
 
-        if id_assegnatario is not None:
-            if id_assegnatario:
-                instance.assigned_to_id = id_assegnatario
+        if assigned_to_id is not None:
+            if assigned_to_id:
+                instance.assigned_to_id = assigned_to_id
             else:
                 instance.assigned_to = None
 
@@ -131,8 +131,8 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         # Aggiorna i collaboratori se specificati
         if id_collaboratori is not None:
-            collaborators = User.objects.filter(id__in=id_collaboratori)
-            progetto.collaborators.set(collaborators)
+            collaboratori = User.objects.filter(id__in=id_collaboratori)
+            progetto.collaboratori.set(collaboratori)
 
         return progetto
 

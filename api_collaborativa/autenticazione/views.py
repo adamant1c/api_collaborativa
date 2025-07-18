@@ -3,16 +3,81 @@ from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
 from .serializers import UserRegistrationSerializer, UserProfileSerializer
 import logging
+
+
+
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def register(request):
     """
-    Registrazione nuovo utente.
+    Registra un nuovo utente nel sistema.
+
+    ## Metodo
+    POST
+
+    ## Autenticazione
+    Non richiesta
+
+    ## Body JSON
+    I campi richiesti dipendono dal `UserRegistrationSerializer`, ma generalmente includono:
+
+    - **username**: *string* — Nome utente univoco
+    - **email**: *string* — Indirizzo email valido
+    - **password**: *string* — Password dell'utente
+    - **nome**: *string* — Nome proprio (first name)
+    - **cognome**: *string* — Cognome (last name)
+
+    ## Esempio di richiesta
+    ```json
+    {
+        "username": "mario",
+        "email": "mario.rossi@example.com",
+        "password": "password123",
+        "nome": "Mario",
+        "cognome": "Rossi"
+    }
+    ```
+
+    ## Risposte
+    - **201 Created**
+        ```json
+        {
+            "message": "Utente registrato con successo",
+            "user": {
+                "id": 1,
+                "username": "mario",
+                "email": "mario.rossi@example.com",
+                "nome": "Mario",
+                "cognome": "Rossi"
+            },
+            "tokens": {
+                "refresh": "jwt_refresh_token",
+                "access": "jwt_access_token"
+            }
+        }
+        ```
+
+    - **400 Bad Request**
+        ```json
+        {
+            "errors": {
+                "email": ["Questo campo è obbligatorio."]
+            },
+            "received_data": {
+                "username": "mario",
+                "email": "",
+                "password": "password123",
+                "nome": "Mario",
+                "cognome": "Rossi"
+            }
+        }
+        ```
+
+    ## Note
+    Dopo la registrazione, l'utente riceve automaticamente una coppia di token JWT (refresh e access).
     """
     logging.info("Dati ricevuti:", request.data)  # Debug
 
@@ -48,61 +113,36 @@ def register(request):
         'received_data': request.data
     }, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-@permission_classes([permissions.AllowAny])
-def login(request):
-    """
-    Login utente con username/email e password.
-    Restituisce token JWT.
-    """
-    username_or_email = request.data.get('username')
-    password = request.data.get('password')
-
-    if not username_or_email or not password:
-        return Response({
-            'error': 'Username/email e password sono richiesti'
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-    # Prova prima con username, poi con email
-    user = authenticate(username=username_or_email, password=password)
-
-    if not user:
-        # Prova con email
-        try:
-            user_obj = User.objects.get(email=username_or_email)
-            user = authenticate(username=user_obj.username, password=password)
-        except User.DoesNotExist:
-            pass
-
-    if user and user.is_active:
-        refresh = RefreshToken.for_user(user)
-
-        return Response({
-            'message': 'Login effettuato con successo',
-            'user': {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'nome': user.first_name,
-                'cognome': user.last_name,
-            },
-            'tokens': {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }
-        }, status=status.HTTP_200_OK)
-
-    return Response({
-        'error': 'Credenziali non valide'
-    }, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def logout(request):
     """
-    Logout utente - invalida il refresh token.
-    """
+       Effettua il logout dell'utente autenticato invalidando il token di refresh.
+
+       ## Metodo
+       POST
+
+       ## Autenticazione
+       Richiesta (token JWT nel header Authorization)
+
+       ## Body JSON
+       - **refresh**: *string* — Token di refresh JWT da invalidare
+
+       ## Esempio di richiesta
+       ```json
+       {
+           "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOi..."
+       }
+       ```
+
+       ## Risposte
+       - **200 OK**
+           - `{"message": "Logout effettuato con successo"}`
+       - **400 Bad Request**
+           - `{"error": "Errore durante il logout; ..."}`
+       """
     try:
         refresh_token = request.data.get('refresh')
         if refresh_token:
@@ -114,16 +154,43 @@ def logout(request):
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
+        logging.error(f'error: {e}')
         return Response({
-            'error': 'Errore durante il logout'
+            'error': f'Errore durante il logout; {e}'
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def profile(request):
     """
-    Restituisce il profilo dell'utente corrente.
+    Restituisce il profilo dell'utente autenticato.
+
+    ## Metodo
+    GET
+
+    ## Autenticazione
+    Richiesta (token JWT nel header Authorization)
+
+    ## Parametri
+    Nessuno
+
+    ## Risposte
+    - **200 OK**
+        ```json
+        {
+            "id": 1,
+            "username": "utente1",
+            "email": "utente@example.com",
+            "nome": "Mario",
+            "cognome": "Rossi"
+        }
+        ```
+
+    ## Note
+    I campi restituiti dipendono da `UserProfileSerializer`.
     """
     serializer = UserProfileSerializer(request.user)
     return Response(serializer.data)
