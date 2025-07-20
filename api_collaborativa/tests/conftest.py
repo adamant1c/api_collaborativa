@@ -38,7 +38,7 @@ def client_autenticato(user_proprietario):
     return client
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def client_collaboratore(user_collaboratore):
     """Client autenticato come collaboratore (JWT)"""
     client = APIClient()
@@ -47,7 +47,7 @@ def client_collaboratore(user_collaboratore):
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
     return client
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def client_estraneo(user_estraneo):
     """Client autenticato come utente estraneo (JWT)"""
     client = APIClient()
@@ -56,7 +56,7 @@ def client_estraneo(user_estraneo):
     client.credentials(HTTP_AUTHORIZATION=f'Bearer {access_token}')
     return client
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def progetto(user_proprietario, user_collaboratore):
     progetto = Progetto.objects.create(
         nome="Progetto Test",
