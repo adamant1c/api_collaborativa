@@ -117,11 +117,38 @@ DB_PORT= INSERT DATABASE TCP PORT
 
 ## 5. Avvio Docker Container PostgreSQL
 
+### Pull image
+
 ```bash
-
-
+sudo docker pull postgres:15
 ```
 
+### Volume creation
+
+```bash
+sudo docker volume create postgres_data
+```
+
+### Settings
+
+```bash
+database_name= datum
+database_password=d@tumD1b
+username=datum_web_app
+```
+
+### Run Container
+
+```bash
+sudo docker run -d  --name postgres_db  -e POSTGRES_DB=datum  -e POSTGRES_USER=datum_web_app  -e POSTGRES_PASSWORD=d@tumD1b  -p 5432:5432 -v postgres_data:/var/lib/postgresql/data  --restart unless-stopped  postgres:15
+```
+
+
+### Test
+
+```bash
+docker exec -it postgres_db psql -U datum_web_app -d datum
+```
 
 ## 5. Migrazioni Database
 
