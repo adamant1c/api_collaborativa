@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from django.db.models import Q, Count, Case, When, IntegerField
 from django.contrib.auth.models import User
 import logging
-
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from rest_framework.views import APIView
 
 from .models import Progetto, Task
@@ -219,6 +220,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+    @swagger_auto_schema(
+        method='get',
+        operation_summary="Statistiche progetto",
+        operation_description="Restituisce le statistiche dettagliate per un progetto specifico.",
+        responses={200: ProjectStatsSerializer()}
+    )
     @action(detail=True, methods=['get'])
     def stats(self, request, pk=None):
         """
