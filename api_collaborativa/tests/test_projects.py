@@ -11,7 +11,7 @@ class TestProgettoViewSet:
     collaboratori e utenti estranei.
     """
     @pytest.mark.positivo
-    def test_proprietario_puo_creare_progetto(self, client_autenticato):
+    def test_proprietario_puo_creare_progetto(self, client_proprietario):
         """
        Test Steps:
        - Usa il client autenticato (user_proprietario) per inviare una POST
@@ -19,7 +19,7 @@ class TestProgettoViewSet:
        - Controlla il contenuto della risposta
         """
         url = reverse('projects-list')
-        response = client_autenticato.post(url, {
+        response = client_proprietario.post(url, {
             'nome': 'Nuovo Progetto',
             'descrizione': 'Descrizione test'
         }, format='json')
@@ -50,14 +50,14 @@ class TestProgettoViewSet:
         assert response.status_code == status.HTTP_404_NOT_FOUND
 
     @pytest.mark.positivo
-    def test_proprietario_puo_aggiornare_progetto(self, client_autenticato, progetto):
+    def test_proprietario_puo_aggiornare_progetto(self, client_proprietario, progetto):
         """
         Test Steps:
         - Il proprietario modifica il nome del progetto tramite PATCH
         - Verifica che la modifica ha effetto
         """
         url = reverse('projects-detail', args=[progetto.id])
-        response = client_autenticato.patch(url, {'nome': 'Nome aggiornato'}, format='json')
+        response = client_proprietario.patch(url, {'nome': 'Nome aggiornato'}, format='json')
         assert response.status_code == status.HTTP_200_OK
         assert response.data['nome'] == 'Nome aggiornato'
 
@@ -73,7 +73,7 @@ class TestProgettoViewSet:
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @pytest.mark.positivo
-    def test_proprietario_puo_eliminare_progetto(self, client_autenticato, progetto):
+    def test_proprietario_puo_eliminare_progetto(self, client_proprietario, progetto):
         """
          Test Steps:
          - Il proprietario invia una DELETE sul progetto
@@ -81,7 +81,7 @@ class TestProgettoViewSet:
          - Controlla che non esiste più nel DB
          """
         url = reverse('projects-detail', args=[progetto.id])
-        response = client_autenticato.delete(url)
+        response = client_proprietario.delete(url)
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not Progetto.objects.filter(id=progetto.id).exists()
 

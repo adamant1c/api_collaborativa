@@ -5,13 +5,11 @@ from django.db.models import Q, Count, Case, When, IntegerField
 from django.contrib.auth.models import User
 import logging
 from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
-from rest_framework.views import APIView
+
 
 from .models import Progetto, Task
 from .serializers import (
-    ProjectSerializer, TaskSerializer, ProjectStatsSerializer,
-    UserSerializer
+    ProjectSerializer, TaskSerializer, ProjectStatsSerializer
 )
 from .permissions import IsProjectOwner, IsProjectMember, CanModifyTask
 

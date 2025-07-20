@@ -12,9 +12,9 @@ class TestTaskViewSet:
     e interagisce con un progetto condiviso (fixture `progetto`) e task associati.
     """
     @pytest.mark.positivo
-    def test_proprietario_puo_creare_task(self, client_autenticato, progetto):
+    def test_proprietario_puo_creare_task(self, client_proprietario, progetto):
         url = reverse('tasks-list')
-        response = client_autenticato.post(url, {
+        response = client_proprietario.post(url, {
             'titolo': 'Task 1',
             'descrizione': 'Descrizione task',
             'progetto': progetto.id,
@@ -59,7 +59,7 @@ class TestTaskViewSet:
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @pytest.mark.positivo
-    def test_autore_puo_modificare_task(self, client_autenticato, task):
+    def test_autore_puo_modificare_task(self, client_proprietario, task):
         """
         Test: L'autore del task può modificarlo.
 
@@ -68,7 +68,7 @@ class TestTaskViewSet:
         2. Verifica dello stato 200 e del campo aggiornato.
         """
         url = reverse('tasks-detail', args=[task.id])
-        response = client_autenticato.patch(url, {
+        response = client_proprietario.patch(url, {
             'titolo': 'Nuovo Titolo'
         }, format='json')
         assert response.status_code == status.HTTP_200_OK
@@ -120,7 +120,7 @@ class TestTaskViewSet:
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
     @pytest.mark.positivo
-    def test_proprietario_puo_aggiungere_collaboratore(self, client_autenticato, progetto, user_estraneo):
+    def test_proprietario_puo_aggiungere_collaboratore(self, client_proprietario, progetto, user_estraneo):
         """
        Test: Il proprietario può aggiungere un collaboratore al progetto.
 
@@ -129,16 +129,16 @@ class TestTaskViewSet:
        2. Verifica che venga aggiunto come collaboratore (201 CREATED).
        """
         url = reverse('projects-add-collaborator', args=[progetto.id])
-        response = client_autenticato.post(url, {
+        response = client_proprietario.post(url, {
             'user_id': user_estraneo.id
         }, format='json')
         assert response.status_code == status.HTTP_200_OK
         assert progetto.collaboratori.filter(id=user_estraneo.id).exists()
 
     @pytest.mark.positivo
-    def test_proprietario_puo_rimuovere_collaboratore(self, client_autenticato, progetto, user_collaboratore):
+    def test_proprietario_puo_rimuovere_collaboratore(self, client_proprietario, progetto, user_collaboratore):
         url = reverse('projects-remove-collaborator', args=[progetto.id])
-        response = client_autenticato.post(url, {
+        response = client_proprietario.post(url, {
             'user_id': user_collaboratore.id
         }, format='json')
         assert response.status_code == status.HTTP_200_OK
@@ -153,9 +153,9 @@ class TestTaskViewSet:
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     @pytest.mark.negativo
-    def test_add_collaborator_user_non_esiste(self, client_autenticato, progetto):
+    def test_add_collaborator_user_non_esiste(self, client_proprietario, progetto):
         url = reverse('projects-add-collaborator', args=[progetto.id])
-        response = client_autenticato.post(url, {
+        response = client_proprietario.post(url, {
             'user_id': 9999
         }, format='json')
         assert response.status_code == status.HTTP_404_NOT_FOUND

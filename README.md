@@ -88,6 +88,9 @@ python -m venv .venv
 source ./.venv/bin/activate
 ```
 
+> [!NOTA]
+> Se o.s. Windows usare .venv\Scripts\activate
+
 ## 3. Installazione Requisiti
 
 ```bash
