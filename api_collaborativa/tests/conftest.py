@@ -29,7 +29,7 @@ def user_estraneo(db):
 
 
 @pytest.fixture
-def client_autenticato(user_proprietario):
+def client_proprietario(user_proprietario):
     client = APIClient()
     refresh = RefreshToken.for_user(user_proprietario)
     access_token = str(refresh.access_token)

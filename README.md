@@ -84,7 +84,7 @@ git clone https://github.com/adamant1c/api_collaborativa.git
 cd api_collaborativa
 
 python -m venv .venv
-
+#Se o.s. Windows usare .venv\Scripts\activate
 source ./.venv/bin/activate
 ```
 
