@@ -290,10 +290,10 @@ class TaskViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         if hasattr(self, 'request') and self.request.data.get('progetto'):
             try:
-                from .models import Project
-                project = Project.objects.get(id=self.request.data['progetto'])
+
+                project = Progetto.objects.get(id=self.request.data['progetto'])
                 context['progetto'] = project
-            except Project.DoesNotExist:
+            except Progetto.DoesNotExist:
                 pass
         return context
 

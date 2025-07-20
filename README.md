@@ -165,11 +165,11 @@ python manage.py migrate
 
 #### API Swagger Documentation:
 
-    http://127.0.0.1:8000/
+    curl http://127.0.0.1:8000/
 
 #### Endpoints:
 
-    http://127.0.0.1:8000/api
+    curl http://127.0.0.1:8000/api
 
 ### Run Tests Funzionali:  permessi e CRUD
 
