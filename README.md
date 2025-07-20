@@ -107,8 +107,8 @@ Dove il contenuto del file dovrebbe essere:
 SECRET_KEY='INSERT DJANGO SECRET KEY'
 DEBUG=false
 
-DB_NAME=api_database
-DB_USER=mooney_user
+DB_NAME=INSERT DATABASE NAME
+DB_USER=INSERT DATABASE USER
 DB_PASSWORD= INSERT DATABASE PASSWORD   
 DB_HOST= INSERT DATABASE IP
 DB_PORT= INSERT DATABASE TCP PORT
@@ -132,9 +132,9 @@ sudo docker volume create postgres_data
 ### Settings
 
 ```bash
-database_name= datum
-database_password=d@tumD1b
-username=datum_web_app
+database_name=INSERT DATABASE NAME
+database_password=INSERT DATABASE PASSWORD
+username=INSERT DATABASE USERNAME
 ```
 
 ### Run Container
